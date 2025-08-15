@@ -19,6 +19,10 @@ class ShakespeareDataset(Dataset):
         else:
             self.tokens = self.tokens[split_idx:]
     
+    #  when passing the ShakespeareDataset object to a DataLoader function of pytorch, it expects the dataset to follow the Dataset protocol. We need:
+    # __len__(self) → returns number of examples in the dataset
+    # getitem__(self, idx) → returns the i-th example (input, target)
+    
     def __len__(self):
         return len(self.tokens) - self.seq_length
     
@@ -33,8 +37,8 @@ def create_dataloaders(text_file, batch_size=8, seq_length=256):
     train_dataset = ShakespeareDataset(text_file, tokenizer, seq_length, 'train')
     val_dataset = ShakespeareDataset(text_file, tokenizer, seq_length, 'val')
     
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True) # we shuffle so the model doesn't learn based on the order of data eg: "To be or not"
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False) # no need to shuffle because no learning happens in validation
     
     return train_loader, val_loader, tokenizer
 
@@ -42,7 +46,7 @@ if __name__ == "__main__":
     print("=== Testing Dataset Component ===")
     
     # Create a tiny example to understand the concept
-    sample_text = "To be or not to be, that is the question"
+    sample_text = """To be or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles"""
     print(f"Original text: '{sample_text}'")
     print(f"Text length: {len(sample_text)} characters")
     
@@ -76,8 +80,8 @@ if __name__ == "__main__":
     print("Each example: input sequence → target sequence (shifted by 1)")
     
     # Manually show how examples are created
-    seq_len = 8
-    for i in range(min(3, len(train_tokens) - seq_len)):
+    seq_len = 8 
+    for i in range(min(3, len(train_tokens) - seq_len)): # we want to show at most 3 examples, but if the dataset is too small we don't try & show more than are present.
         input_tokens = train_tokens[i:i + seq_len]
         target_tokens = train_tokens[i + 1:i + seq_len + 1]
         
