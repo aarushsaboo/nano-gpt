@@ -1,3 +1,12 @@
-torch
-matplotlib 
-numpy
+# Core ML libraries
+torch>=2.0.0
+numpy<2.0.0
+
+# Optional: For better progress bars during training
+tqdm
+
+# Optional: For plotting training curves later
+matplotlib
+
+# Optional: For configuration management
+pyyaml
