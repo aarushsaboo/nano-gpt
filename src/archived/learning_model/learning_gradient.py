@@ -10,7 +10,13 @@ layer = nn.Linear(5, 3)
 # Step 3: forward pass
 y_pred = layer(x)  
 loss_fn = nn.CrossEntropyLoss() # this is when you configure it! You don't pass your data.. You pass y_pred & y_true when you call it
-loss = loss_fn(y_pred, y_true.argmax(dim=1))  
+loss = loss_fn(y_pred, y_true.argmax(dim=1))  # we're gonna convert y_true from a 1-hot encoded 2D vector to a 1D vector of class indices
+# what CrossEntropyLoss expects are 
+# y_pred ( raw logits ):
+# Shape = [batch_size, num_classes]
+
+# y_true ( class indices ):
+# Shape = [batch_size]
 
 print("Loss value:", loss.item())
 

@@ -81,7 +81,7 @@ if __name__ == "__main__":
     
     # Manually show how examples are created
     seq_len = 8 
-    for i in range(min(3, len(train_tokens) - seq_len)): # we want to show at most 3 examples, but if the dataset is too small we don't try & show more than are present.
+    for i in range(min(1, len(train_tokens) - seq_len)): # we want to show at most 1 examples, but if the dataset is too small we don't try & show more than are present.
         input_tokens = train_tokens[i:i + seq_len]
         target_tokens = train_tokens[i + 1:i + seq_len + 1]
         
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             target_char = tokenizer.decode([target_tokens[j]])
             print(f"    '{input_char}' → '{target_char}'")
     
-    print("\n=== What DataLoader Actually Returns ===")
+    # Show what the DataLoader Actually Returns
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         print(f"\nBatch {batch_idx + 1} shape:")
         print(f"  inputs tensor shape: {inputs.shape}")  # [batch_size, seq_length]
