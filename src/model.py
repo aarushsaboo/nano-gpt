@@ -39,15 +39,12 @@ class MultiHeadSelfAttention(nn.Module):
         K = self.k_linear(x)
         V = self.v_linear(x)
         
-        # Reshape for multi-head attention
         Q = Q.view(batch_size, seq_len, self.n_heads, self.head_dim).transpose(1, 2)
         K = K.view(batch_size, seq_len, self.n_heads, self.head_dim).transpose(1, 2)
         V = V.view(batch_size, seq_len, self.n_heads, self.head_dim).transpose(1, 2)
         
-        # Attention
         attention = self.scaled_dot_product_attention(Q, K, V)
         
-        # Reshape back
         attention = attention.transpose(1, 2).contiguous().view(batch_size, seq_len, d_model)
         
         return self.out_linear(attention)
@@ -84,11 +81,9 @@ class TransformerBlock(nn.Module):
         self.ln2 = nn.LayerNorm(d_model)
     
     def forward(self, x):
-        # Attention with residual connection
         attn_out = self.attention(self.ln1(x))
         x = x + attn_out
         
-        # Feed-forward with residual connection  
         ff_out = self.feed_forward(self.ln2(x))
         x = x + ff_out
         
@@ -107,14 +102,11 @@ class NanoGPT(nn.Module):
         self.output_projection = nn.Linear(d_model, vocab_size)
     
     def forward(self, x):
-        # Embed tokens
         x = self.embedding(x)
         
-        # Pass through transformer blocks
         for block in self.transformer_blocks:
             x = block(x)
         
-        # Final layer norm and projection to vocab
         x = self.ln_final(x)
         logits = self.output_projection(x)
         
@@ -123,7 +115,6 @@ class NanoGPT(nn.Module):
 if __name__ == "__main__":
     print("=== Testing Transformer Model ===")
     
-    # Test with small parameters
     vocab_size = 15  # From our Shakespeare sample
     batch_size = 2
     seq_len = 8
@@ -133,10 +124,9 @@ if __name__ == "__main__":
     # Create dummy input (like what our dataset produces)
     dummy_input = torch.randint(0, vocab_size, (batch_size, seq_len))
     
-    print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
+    print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}") # you're calculating the no. of elements for every parameter.. Important because more parameters = more memory and longer training time.
     print(f"Input shape: {dummy_input.shape}")
     
-    # Forward pass
     with torch.no_grad():
         logits = model(dummy_input)
     
