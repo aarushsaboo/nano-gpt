@@ -58,13 +58,23 @@ class Trainer:
         
         return total_loss / num_batches if num_batches > 0 else float('inf')
     
-    def train(self, epochs=20, print_every=5, save_path='../models/nano_gpt.pth'):
+    def train(self, epochs=2, print_every=5, save_path=None):
+        # Handle path relative to current working directory
+        if save_path is None:
+            # Get the directory where the script is running from
+            import os
+            current_dir = os.getcwd()
+            models_dir = os.path.join(current_dir, 'models')
+            save_path = os.path.join(models_dir, 'nano_gpt.pth')
+        
         print(f"Starting training for {epochs} epochs...")
         print(f"Model has {sum(p.numel() for p in self.model.parameters()):,} parameters")
+        print(f"Model will be saved to: {save_path}")
         
         # Create models directory
         import os
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        print(f"Created directory: {os.path.dirname(save_path)}")
         
         best_val_loss = float('inf')
         
@@ -97,7 +107,7 @@ class Trainer:
                 print(f"Epoch {epoch+1:3d}: Train Loss: {avg_train_loss:.4f}, Val Loss: {val_loss:.4f}")
                 
                 # Generate sample text
-                sample = self.generate_sample("To be", max_length=50)
+                sample = self.generate_sample("To be", max_length=30)  # Shorter sample
                 print(f"Sample: '{sample}'")
                 print("-" * 60)
     
@@ -158,13 +168,16 @@ class Trainer:
 if __name__ == "__main__":
     print("=== Training Shakespeare Model ===")
     
+    
     # Use your full Shakespeare dataset
     base_dir = os.path.dirname(os.path.dirname(__file__))  # project root
     shakespeare_path = os.path.join(base_dir, "data", "shakespeare.txt")
+
+    # Create data loaders with very CPU-friendly settings
     train_loader, val_loader, tokenizer = create_dataloaders(
         shakespeare_path, 
-        batch_size=8, 
-        seq_length=64
+        batch_size=32,  # Your setting
+        seq_length=32   # Shorter sequences = faster training
     )
     
     # Create model
@@ -183,8 +196,8 @@ if __name__ == "__main__":
     # Create trainer
     trainer = Trainer(model, train_loader, val_loader, tokenizer)
     
-    # Train the model (reduced epochs for faster training)
-    trainer.train(epochs=10, print_every=2)
+    # Train the model (your fast settings)
+    trainer.train(epochs=2, print_every=1)
     
     print("\n=== Final Generation Test ===")
     for prompt in ["To be", "The heart", "To die"]:
