@@ -113,19 +113,23 @@ class Trainer:
     
     def save_model(self, path):
         """Save model and tokenizer for later use"""
+        # Get actual model configuration
+        config = {
+            'd_model': self.model.embedding.token_embedding.embedding_dim,
+            'n_heads': self.model.transformer_blocks[0].attention.n_heads,
+            'n_layers': len(self.model.transformer_blocks),
+            'max_seq_len': self.model.embedding.position_embedding.num_embeddings
+        }
+        
         torch.save({
             'model_state_dict': self.model.state_dict(),
             'vocab_size': len(self.tokenizer),
             'char_to_idx': self.tokenizer.char_to_idx,
             'idx_to_char': self.tokenizer.idx_to_char,
-            'model_config': {
-                'd_model': self.model.embedding.token_embedding.embedding_dim,
-                'n_heads': 4,  # We'll make this configurable later
-                'n_layers': len(self.model.transformer_blocks),
-                'max_seq_len': 256
-            }
+            'model_config': config
         }, path)
         print(f"Model saved to {path}")
+        print(f"Config saved: {config}")
     
     def generate_sample(self, start_text="To be", max_length=100, temperature=1.0):
         self.model.eval()
@@ -180,13 +184,12 @@ if __name__ == "__main__":
         seq_length=32   # Shorter sequences = faster training
     )
     
-    # Create model
     model = NanoGPT(
         vocab_size=len(tokenizer),
         d_model=64,
         n_heads=4,
         n_layers=3,
-        max_seq_len=64
+        max_seq_len=64  # Match the sequence length we're using
     )
     
     print(f"Vocabulary size: {len(tokenizer)}")
